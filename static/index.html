@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Daily Broadsheet — Your Personalized Newspaper</title>
+    <link rel="stylesheet" href="css/newspaper.css?v=3.1">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗞️</text></svg>">
+</head>
+<body data-theme="classic">
+
+    <!-- FLOATING APP CONTROLS TOOLBAR -->
+    <header class="app-toolbar">
+        <div class="toolbar-brand">
+            <span class="logo-icon">🗞️</span>
+            <span>The Daily Broadsheet</span>
+            <span class="edition-badge">Personal Press</span>
+        </div>
+        <div class="toolbar-actions">
+            <button id="btnGenerate" class="btn btn-primary" title="Pull latest articles from all enabled sources and print a new edition">
+                <span>🗞️</span> Generate Fresh Edition
+            </button>
+            <button id="btnEditorial" class="btn btn-secondary" title="Configure your RSS/Atom sources and newspaper title">
+                <span>⚙️</span> Editorial Desk
+            </button>
+            <button id="btnArchives" class="btn btn-secondary" title="Browse past editions">
+                <span>📜</span> Archives
+            </button>
+            <button id="btnPrint" class="btn btn-secondary" title="Print physical newspaper or save as PDF">
+                <span>🖨️</span> Print / PDF
+            </button>
+            <button id="btnViewMode" class="btn btn-secondary" title="Toggle between reading full articles and brief digests">
+                <span id="viewModeIcon">📖</span> <span id="viewModeText">Full Articles</span>
+            </button>
+
+            <!-- Theme Selector -->
+            <select id="themeSelect" class="theme-select" title="Change newspaper aesthetic">
+                <option value="classic">Classic Broadsheet</option>
+                <option value="vintage">Vintage 1920s</option>
+                <option value="salmon">Financial Times Salmon</option>
+                <option value="midnight">Midnight Edition</option>
+            </select>
+
+            <!-- Font Size Adjusters -->
+            <button id="fontSmaller" class="font-size-btn" title="Decrease font size">A-</button>
+            <button id="fontLarger" class="font-size-btn" title="Increase font size">A+</button>
+        </div>
+    </header>
+
+    <!-- LIVE MARKET TICKER TAPE -->
+    <div id="marketTicker" class="market-ticker-bar">
+        <!-- Rendered by app.js -->
+    </div>
+
+    <!-- MAIN NEWSPAPER BROADSHEET SHEET -->
+    <main class="newspaper-wrapper">
+        <div id="newspaperSheet" class="newspaper-sheet">
+            <!-- Dynamically populated by app.js with Masthead, Lead Story, Sections, and Sidebars -->
+        </div>
+    </main>
+
+    <!-- ==========================================================================
+         EDITORIAL DESK MODAL (SOURCES & BRANDING)
+         ========================================================================== -->
+    <div id="editorialModal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>⚙️</span> Editorial Desk — Sources & Configuration</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tabs">
+                    <button class="modal-tab-btn active" data-tab="tabSources">Active Sources</button>
+                    <button class="modal-tab-btn" data-tab="tabAddSource">Add Custom Feed</button>
+                    <button class="modal-tab-btn" data-tab="tabPresets">Preset Feeds</button>
+                    <button class="modal-tab-btn" data-tab="tabBranding">Paper Branding</button>
+                </div>
+
+                <!-- Tab 1: Active Sources -->
+                <div id="tabSources" class="tab-pane active">
+                    <p style="color: #9ca3af; margin-bottom: 0.8rem; font-size: 0.85rem;">
+                        Toggle sources on/off to include them when generating your newspaper. Customize which section of the paper each feed prints to.
+                    </p>
+                    <div style="overflow-x: auto;">
+                        <table class="sources-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">Active</th>
+                                    <th>Source Name & URL</th>
+                                    <th>Section</th>
+                                    <th>Max</th>
+                                    <th style="width: 70px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sourcesTableBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Add Custom Feed -->
+                <div id="tabAddSource" class="tab-pane">
+                    <form id="formNewSource">
+                        <div class="form-group">
+                            <label for="newSourceUrl">Feed URL (RSS or Atom)</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="url" id="newSourceUrl" class="form-control" placeholder="https://example.com/rss.xml" required>
+                                <button type="button" id="btnTestSource" class="btn btn-secondary" style="white-space: nowrap;">
+                                    Test URL
+                                </button>
+                            </div>
+                            <div id="testFeedback" style="font-size: 0.8rem; margin-top: 0.4rem; min-height: 1.2rem;"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newSourceName">Source Name</label>
+                                <input type="text" id="newSourceName" class="form-control" placeholder="e.g. My Favorite Tech Blog" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newSourceSection">Target Section</label>
+                                <select id="newSourceSection" class="form-control">
+                                    <option value="Front Page">Front Page</option>
+                                    <option value="India">India</option>
+                                    <option value="Markets & Stocks">Markets & Stocks</option>
+                                    <option value="Economy & Policy">Economy & Policy</option>
+                                    <option value="Business & Companies">Business & Companies</option>
+                                    <option value="Technology & AI">Technology & AI</option>
+                                    <option value="Sports & Cricket">Sports & Cricket</option>
+                                    <option value="Entertainment & Cinema">Entertainment & Cinema</option>
+                                    <option value="Opinion & Editorial">Opinion & Editorial</option>
+                                    <option value="Science & Space">Science & Space</option>
+                                    <option value="World Affairs">World Affairs</option>
+                                    <option value="Culture & Books">Culture & Books</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newSourceMax">Max Articles to Pull</label>
+                            <input type="number" id="newSourceMax" class="form-control" value="8" min="1" max="25">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                            + Add Source to Newspaper
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tab 3: Curated Presets -->
+                <div id="tabPresets" class="tab-pane">
+                    <p style="color: #9ca3af; font-size: 0.85rem;">
+                        One-click add from popular, verified high-quality feeds across tech, world affairs, science, and business.
+                    </p>
+                    <div id="presetsGrid" class="presets-grid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Tab 4: Paper Branding -->
+                <div id="tabBranding" class="tab-pane">
+                    <form id="formBranding">
+                        <div class="form-group">
+                            <label for="brandPaperName">Newspaper Masthead Title</label>
+                            <input type="text" id="brandPaperName" class="form-control" placeholder="e.g. THE DAILY CHRONICLE">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="brandMotto">Newspaper Motto / Subtitle</label>
+                            <input type="text" id="brandMotto" class="form-control" placeholder="e.g. All the News Fit to Generate">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="brandCity">City / Edition Label</label>
+                                <input type="text" id="brandCity" class="form-control" placeholder="e.g. India & Global Edition">
+                            </div>
+                            <div class="form-group">
+                                <label for="brandWeatherCity">Weather City (Live Temp & Forecast)</label>
+                                <input type="text" id="brandWeatherCity" class="form-control" placeholder="e.g. Bengaluru, Mumbai, New Delhi">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="brandPrice">Issue Price / Tag</label>
+                            <input type="text" id="brandPrice" class="form-control" placeholder="e.g. Two Bits, ₹10, Free Digital">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                            Save Branding Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         ARCHIVES MODAL
+         ========================================================================== -->
+    <div id="archiveModal" class="modal-backdrop">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>📜</span> Archived Newspaper Editions</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="archivesList">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary modal-close-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         ARTICLE READER MODAL
+         ========================================================================== -->
+    <div id="readerModal" class="modal-backdrop">
+        <div class="modal-dialog" style="max-width: 680px;">
+            <div class="modal-header">
+                <h3><span>📰</span> Article Dispatch</h3>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2 id="readerTitle" class="reader-article-title"></h2>
+                <div id="readerMeta" class="reader-article-meta"></div>
+                <div id="readerBody" class="reader-article-body"></div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <a id="readerOriginalLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="text-decoration: none;">
+                    Open Original Website ↗
+                </a>
+                <button class="btn btn-secondary modal-close-btn">Close Reader</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=3.0"></script>
+</body>
+</html>
